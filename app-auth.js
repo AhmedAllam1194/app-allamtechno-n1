@@ -1,35 +1,38 @@
-// app-auth.js — Username/Password via Firestore 'usernames' collection
-import { db } from "./config.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+// app-auth.js
+import { staticUsers } from './config.js';
 
-const $ = (id) => document.getElementById(id);
-const toast = (m) => alert(m);
+const $ = (sel) => document.querySelector(sel);
+
+function login() {
+  const u = $('#username')?.value?.trim() || '';
+  const p = $('#password')?.value?.trim() || '';
+
+  if (!u || !p) {
+    alert('لو سمحت اكتب اسم المستخدم وكلمة المرور');
+    return;
+  }
+
+  // تحقق من اليوزرات الثابتة
+  const hit = staticUsers.find(x => x.username.toLowerCase() === u.toLowerCase() && x.password === p);
+
+  if (hit) {
+    // خزّن بيانات الجلسة
+    localStorage.setItem('atd_username', hit.username);
+    localStorage.setItem('atd_role', hit.role);
+    localStorage.setItem('atd_logged_in', '1');
+
+    // روح للواجهة الرئيسية (عدّل المسار لو عندك صفحة تانية)
+    window.location.href = './index.html';
+    return;
+  }
+
+  // لو عايز بعدين نفعّل تسجيل دخول من Firestore نضيفه هنا
+  alert('بيانات غير صحيحة. جرّب: admin / 102030405060 أو developer / 5781829');
+}
 
 window.addEventListener('DOMContentLoaded', () => {
-  $('loginBtn')?.addEventListener('click', login);
-  $('password')?.addEventListener('keydown', (e)=>{ if(e.key==='Enter') login(); });
+  $('#loginBtn')?.addEventListener('click', login);
+  $('#password')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') login();
+  });
 });
-
-async function login(){
-  const username = $('username')?.value?.trim();
-  const password = $('password')?.value ?? '';
-  if(!username || !password){ return toast('من فضلك أدخل اسم المستخدم وكلمة المرور'); }
-
-  try{
-    const ref = doc(db, 'usernames', username);
-    const snap = await getDoc(ref);
-    if(!snap.exists()){ return toast('المستخدم غير موجود'); }
-
-    const data = snap.data();
-    if(String(data.password ?? '') !== String(password)){
-      return toast('كلمة المرور غير صحيحة');
-    }
-
-    localStorage.setItem('atd_user', JSON.stringify({ username, role: data.role || 'user' }));
-    // redirect
-    window.location.href = './index.html#home';
-  }catch(err){
-    console.error(err);
-    toast('حصل خطأ في الاتصال بقاعدة البيانات');
-  }
-}
