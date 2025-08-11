@@ -1,38 +1,80 @@
-// app-auth.js
-import { staticUsers } from './config.js';
+<!-- ضعه كملف منفصل باسم app-auth.js في جذر المشروع -->
 
-const $ = (sel) => document.querySelector(sel);
+<script type="module">
+import { db } from "./config.js";
+import {
+  doc, getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-function login() {
-  const u = $('#username')?.value?.trim() || '';
-  const p = $('#password')?.value?.trim() || '';
+// عناصر الواجهة
+const $u = document.getElementById("username");
+const $p = document.getElementById("password");
+const $btn = document.getElementById("loginBtn");
 
-  if (!u || !p) {
-    alert('لو سمحت اكتب اسم المستخدم وكلمة المرور');
-    return;
-  }
-
-  // تحقق من اليوزرات الثابتة
-  const hit = staticUsers.find(x => x.username.toLowerCase() === u.toLowerCase() && x.password === p);
-
-  if (hit) {
-    // خزّن بيانات الجلسة
-    localStorage.setItem('atd_username', hit.username);
-    localStorage.setItem('atd_role', hit.role);
-    localStorage.setItem('atd_logged_in', '1');
-
-    // روح للواجهة الرئيسية (عدّل المسار لو عندك صفحة تانية)
-    window.location.href = './index.html';
-    return;
-  }
-
-  // لو عايز بعدين نفعّل تسجيل دخول من Firestore نضيفه هنا
-  alert('بيانات غير صحيحة. جرّب: admin / 102030405060 أو developer / 5781829');
+// رسالة بسيطة
+function toast(msg, type="err"){
+  alert(msg); // ممكن تستبدلها بتوست من تصميمك
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  $('#loginBtn')?.addEventListener('click', login);
-  $('#password')?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') login();
+async function login() {
+  const username = ($u?.value || "").trim();
+  const password = ($p?.value || "").trim();
+
+  if (!username || !password) {
+    toast("من فضلك أدخل اسم المستخدم وكلمة المرور");
+    return;
+  }
+
+  try {
+    // اقفل الزر مؤقتًا
+    if ($btn) { $btn.disabled = true; $btn.textContent = "جارِ الدخول..."; }
+
+    // 1) التحقّق من كلمة المرور: usernames/{username}.password
+    const passRef = doc(db, "usernames", username);
+    const passSnap = await getDoc(passRef);
+    if (!passSnap.exists()) {
+      throw new Error("اسم المستخدم غير موجود.");
+    }
+    const savedPass = passSnap.data()?.password || "";
+    if (password !== String(savedPass)) {
+      throw new Error("كلمة المرور غير صحيحة.");
+    }
+
+    // 2) جلب الدور من users/{username}.role (اختياري)
+    let role = "developer";
+    const roleRef = doc(db, "users", username);
+    const roleSnap = await getDoc(roleRef);
+    if (roleSnap.exists() && roleSnap.data()?.role) {
+      role = roleSnap.data().role;
+    } else if (username.toLowerCase() === "admin") {
+      role = "admin";
+    }
+
+    // 3) حفظ الجلسة محلّيًا
+    const session = {
+      username,
+      role,
+      loginAt: Date.now()
+    };
+    localStorage.setItem("atd_session", JSON.stringify(session));
+
+    // 4) تحويل لواجهة النظام
+    // لو الواجهة الرئيسية عندك index.html في نفس المجلد، خليه "./"
+    window.location.href = "./"; 
+  } catch (err) {
+    console.error(err);
+    toast(err.message || "فشل تسجيل الدخول.");
+  } finally {
+    if ($btn) { $btn.disabled = false; $btn.textContent = "دخول"; }
+  }
+}
+
+// ربط زر الدخول و Enter
+if ($btn) $btn.addEventListener("click", login);
+[$u, $p].forEach(el=>{
+  if(!el) return;
+  el.addEventListener("keydown", e=>{
+    if(e.key === "Enter") login();
   });
 });
+</script>
