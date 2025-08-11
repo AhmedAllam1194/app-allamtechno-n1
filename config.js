@@ -1,10 +1,9 @@
-// config.js
-// Firebase via CDN for GitHub Pages (ES Modules)
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+// config.js — Firebase (CDN) + export db (READY)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-// Project: allamtechnoapp (old config you used)
-const firebaseConfig = {
+// Project: allamtechnoapp (old settings)
+window.AT_FIREBASE_CONFIG = {
   apiKey: "AIzaSyCJdGS3ZQ4-ZWsR-_m_B45uifzVKP3kXFY",
   authDomain: "allamtechnoapp.firebaseapp.com",
   projectId: "allamtechnoapp",
@@ -14,5 +13,5 @@ const firebaseConfig = {
   measurementId: "G-TZ0BESHYE0"
 };
 
-const app = initializeApp(firebaseConfig);
+const app = initializeApp(window.AT_FIREBASE_CONFIG);
 export const db = getFirestore(app);
