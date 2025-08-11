@@ -1,20 +1,18 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+// config.js
+// Firebase via CDN for GitHub Pages (ES Modules)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Your web app's Firebase configuration
+// Project: allamtechnoapp (old config you used)
 const firebaseConfig = {
-  apiKey: "AIzaSyDSvA77d8GoDZcqbk o7Cscund4C_lMf zI",
-  authDomain: "allamtechnopro.firebaseapp.com",
-  projectId: "allamtechnopro",
-  storageBucket: "allamtechnopro.appspot.com",
-  messagingSenderId: "880765694402",
-  appId: "1:880765694402:web:88a5db645e555e742d665b",
-  measurementId: "G-WS1EJL22P3"
+  apiKey: "AIzaSyCJdGS3ZQ4-ZWsR-_m_B45uifzVKP3kXFY",
+  authDomain: "allamtechnoapp.firebaseapp.com",
+  projectId: "allamtechnoapp",
+  storageBucket: "allamtechnoapp.appspot.com",
+  messagingSenderId: "213007674911",
+  appId: "1:213007674911:web:27caf05761648b82876f2a",
+  measurementId: "G-TZ0BESHYE0"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-
-export { app };
+export const db = getFirestore(app);
