@@ -1,4 +1,4 @@
-// Firebase Configuration
+// config.js
 export const firebaseConfig = {
   apiKey: "AIzaSyCJdGS3ZQ4-ZWsR-_m_B45uifzVKP3kXFY",
   authDomain: "allamtechnoapp.firebaseapp.com",
@@ -9,8 +9,8 @@ export const firebaseConfig = {
   measurementId: "G-TZ0BESHYE0"
 };
 
-// Static Users for Development
+// يوزرات ثابتة للتجربة السريعة
 export const staticUsers = [
-  { username: "admin", password: "102030405060", role: "admin" },
-  { username: "developer", password: "5781829", role: "developer" }
+  { username: "admin",     password: "102030405060", role: "admin" },
+  { username: "developer", password: "5781829",      role: "developer" }
 ];
